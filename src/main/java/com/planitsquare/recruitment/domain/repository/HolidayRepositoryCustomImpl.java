@@ -12,6 +12,7 @@ import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.util.List;
@@ -63,6 +64,24 @@ public class HolidayRepositoryCustomImpl implements HolidayRepositoryCustom {
                         )
                 ));
         return CursorPaginationResult.fromDataWithExtraItemForNextCheck(result, pageable.getPageSize());
+    }
+
+    @Override
+    public long deleteByCondition(String year, String code) {
+        jpaQueryFactory.delete(holidayCounty)
+                .where(holidayCounty.holiday.in(
+                        JPAExpressions.selectFrom(holiday)
+                                .where(
+                                        yearCondition(year),
+                                        countryCondition(code)
+                                )
+                )).execute();
+
+        return jpaQueryFactory.delete(holiday)
+                .where(
+                        yearCondition(year),
+                        countryCondition(code)
+                ).execute();
     }
 
     private BooleanExpression cursorIdCondition(Long cursorId) {

@@ -14,4 +14,6 @@ public interface HolidayRepositoryCustom {
             CursorPaginationInfoReq pageable
     );
 
+    long deleteByCondition(String year, String code);
+
 }
