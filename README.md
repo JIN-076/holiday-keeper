@@ -176,21 +176,14 @@ else // 해당 국가의 해당 연도 공휴일 데이터 삭제
 ```
 
 #### Response
-HolidaySyncResponse.class
+HolidayDeleteResponse.class
 
 - Status: `200 OK`
 - Body:
 ```json
 {
-  "success": true,
-  "summary": {
-    "totalYears": 1,
-    "totalCountries": 1,
-    "totalHolidays": 15,
-    "succeedChunks": 1,
-    "failedChunks": 0
-  },
-  "timestamp": "2025-07-02T21:36:53.90839"
+  "timestamp": "2025-07-02T15:42:29.758Z",
+  "deletedCount": 0
 }
 ```
 
