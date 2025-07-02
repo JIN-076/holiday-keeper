@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/admin/holidays")
+@RequestMapping("/api/v1/holidays")
 @RequiredArgsConstructor
 public class HolidayAdminController implements HolidayAdminSwagger {
 
@@ -31,7 +31,7 @@ public class HolidayAdminController implements HolidayAdminSwagger {
      * 이후 실행 시, 기존 데이터에 덮어쓰는 동기화 방식으로 동작
      */
 
-    @PostMapping("/load")
+    @PostMapping("/import")
     public ResponseEntity<HolidayLoadResponse> loadHolidays() {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(holidayAdminService.batchRun());
