@@ -31,7 +31,11 @@ public class HolidayService {
         if (from != null && from.isAfter(to)) {
             throw new IllegalArgumentException("from은 to보다 늦을 수 없습니다.");
         }
-        return holidayRepository.findByConditionWithPagination(year, code, type, from, to, pageable);
+        return holidayRepository.findByConditionWithPagination(
+            year,
+            code != null ? code.toUpperCase() : null,
+            type != null ? type.toUpperCase() : null,
+            from, to, pageable);
     }
 
 }

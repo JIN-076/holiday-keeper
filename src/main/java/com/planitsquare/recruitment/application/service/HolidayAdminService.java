@@ -36,15 +36,15 @@ public class HolidayAdminService {
 
     public HolidayLoadResponse batchRun() {
         JobExecution exec = reloadWithCondition(null, null, GAP);
-        SummaryInfo summary = makeSummaryWithStepExecution(exec);
+        SummaryInfo summary = makeSummaryWithStepExecution(exec, null, null, GAP);
         boolean succeed = summary.getFailedChunks() == 0L;
         return HolidayLoadResponse.of(succeed, summary);
     }
 
     public HolidaySyncResponse syncByCondition(String year, String code, Long gap) {
         DateValidator.validParam(year);
-        JobExecution exec = reloadWithCondition(year, code, gap);
-        SummaryInfo summary = makeSummaryWithStepExecution(exec);
+        JobExecution exec = reloadWithCondition(year, code != null ? code.toUpperCase() : null, gap);
+        SummaryInfo summary = makeSummaryWithStepExecution(exec, year, code, gap);
         boolean succeed = summary.getFailedChunks() == 0L;
         log.info("batch execution status: {} changed: {} chunks[succes: {},failed: {}]",
             succeed, summary.getTotalHolidays(), summary.getSucceedChunks(), summary.getFailedChunks());
@@ -57,7 +57,7 @@ public class HolidayAdminService {
         if (year == null && code == null) {
             throw new IllegalArgumentException("삭제 기준은 최소 하나 이상 선택해야 합니다.");
         }
-        return holidayRepository.deleteByCondition(year, code);
+        return holidayRepository.deleteByCondition(year, code != null ? code.toUpperCase() : null);
     }
 
     private JobExecution reloadWithCondition(String year, String code, Long gap) {
@@ -74,16 +74,18 @@ public class HolidayAdminService {
         }
     }
 
-    private SummaryInfo makeSummaryWithStepExecution(JobExecution execution) {
+    private SummaryInfo makeSummaryWithStepExecution(JobExecution execution, String year, String code, Long gap) {
+        Long toalYears = year != null ? 1 : gap;
+
         StepExecution countryExec = fetchStepExecutionWithStepName(execution, COUNTRY_STEP);
-        Long totalCountries = countryExec.getExecutionContext().getLong(TOTAL_COUNTRY);
+        Long totalCountries = code != null ? 1 : countryExec.getExecutionContext().getLong(TOTAL_COUNTRY);
 
         StepExecution holidayExec = fetchStepExecutionWithStepName(execution, HOLIDAY_STEP);
         Long totalHolidays = holidayExec.getExecutionContext().getLong(TOTAL_HOLIDAY);
 
         Long succeed = holidayExec.getCommitCount();
         Long failed = holidayExec.getRollbackCount();
-        return SummaryInfo.of(GAP, totalCountries, totalHolidays, succeed, failed);
+        return SummaryInfo.of(toalYears, totalCountries, totalHolidays, succeed, failed);
     }
 
     private StepExecution fetchStepExecutionWithStepName(JobExecution execution, String stepName) {
