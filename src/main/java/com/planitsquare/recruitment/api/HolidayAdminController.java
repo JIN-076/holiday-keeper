@@ -1,5 +1,6 @@
 package com.planitsquare.recruitment.api;
 
+import com.planitsquare.recruitment.api.dto.HolidayDeleteResponse;
 import com.planitsquare.recruitment.api.dto.HolidayLoadResponse;
 import com.planitsquare.recruitment.application.service.HolidayAdminService;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +32,12 @@ public class HolidayAdminController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Long> deleteHolidays(
+    public ResponseEntity<HolidayDeleteResponse> deleteHolidays(
             @RequestParam(required = false) String year,
             @RequestParam(required = false) String code
     ) {
         return ResponseEntity.ok(
-            holidayAdminService.deleteByCondition(year, code)
+            HolidayDeleteResponse.from(holidayAdminService.deleteByCondition(year, code))
         );
     }
 }
