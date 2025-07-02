@@ -7,6 +7,7 @@ import com.planitsquare.recruitment.api.dto.HolidaySyncResponse;
 import com.planitsquare.recruitment.api.dto.SummaryInfo;
 import com.planitsquare.recruitment.domain.repository.HolidayRepository;
 import com.planitsquare.recruitment.exception.batch.BatchExecutionException;
+import com.planitsquare.recruitment.util.DateValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -39,6 +40,7 @@ public class HolidayAdminService {
     }
 
     public HolidaySyncResponse syncByCondition(String year, String code) {
+        DateValidator.validParam(year);
         JobExecution exec = reloadWithCondition(year, code);
         SummaryInfo summary = makeSummaryWithStepExecution(exec);
         boolean succeed = !exec.getStatus().isUnsuccessful();
@@ -47,6 +49,7 @@ public class HolidayAdminService {
 
     @Transactional("jpaTransactionManager")
     public long deleteByCondition(String year, String code) {
+        DateValidator.validParam(year);
         if (year == null && code == null) {
             throw new IllegalArgumentException("삭제 기준은 최소 하나 이상 선택해야 합니다.");
         }
@@ -65,7 +68,6 @@ public class HolidayAdminService {
             throw new BatchExecutionException(INTERNAL_SERVER_ERROR);
         }
     }
-
 
     private SummaryInfo makeSummaryWithStepExecution(JobExecution execution) {
         StepExecution countryExec = fetchStepExecutionWithStepName(execution, COUNTRY_STEP);

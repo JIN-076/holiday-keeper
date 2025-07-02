@@ -25,4 +25,13 @@ public enum HolidayType {
         return HolidayType.valueOf(value.toUpperCase());
     }
 
+    public static void validType(String type) {
+        if (type == null) return;
+        try {
+            HolidayType.valueOf(type.toUpperCase());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("지원되지 않는 휴일 분류입니다.");
+        }
+    }
+
 }

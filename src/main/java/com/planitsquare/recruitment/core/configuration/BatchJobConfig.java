@@ -1,9 +1,12 @@
 package com.planitsquare.recruitment.core.configuration;
 
+import static com.planitsquare.recruitment.exception.code.ErrorCode404.COUNTRY_NOT_FOUND;
+
 import com.planitsquare.recruitment.application.batch.listener.HolidayCountListener;
 import com.planitsquare.recruitment.common.constant.BatchSql;
 import com.planitsquare.recruitment.domain.entity.Country;
 import com.planitsquare.recruitment.application.batch.tasklet.CountryListTasklet;
+import com.planitsquare.recruitment.domain.exception.CountryException;
 import com.planitsquare.recruitment.domain.repository.CountryRepository;
 import com.planitsquare.recruitment.application.batch.vo.CountryYear;
 import com.planitsquare.recruitment.domain.dto.HolidayDto;
@@ -110,7 +113,7 @@ public class BatchJobConfig {
             ? List.of(
                 countryRepository
                     .findByCountryCode(countryCode)
-                    .orElseThrow(() -> new IllegalArgumentException("Country not found: " + countryCode))
+                    .orElseThrow(() -> new CountryException(COUNTRY_NOT_FOUND))
             )
             : countryRepository.findAll();
 

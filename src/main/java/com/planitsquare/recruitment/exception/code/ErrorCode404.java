@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode404 implements ErrorCode {
 
     ENDPOINT_NOT_FOUND("E000301", "요청하신 리소스를 찾을 수 없습니다."),
+    COUNTRY_NOT_FOUND("E010301", "요청하신 국가 코드는 존재하지 않습니다."),
     ;
 
     private final HttpStatus httpStatus = HttpStatus.NOT_FOUND;
