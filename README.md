@@ -121,7 +121,7 @@ HolidayInfoResponse.class
 
 #### Request
 - Method: `PUT`
-- URL: `/api/v1/holidays`
+- URL: `/api/v1/admin/holidays`
 
 ##### Query Parameters (옵션)
 | 이름        | 타입                        | 필수 | 기본값         | 설명        |
@@ -160,7 +160,7 @@ HolidaySyncResponse.class
 
 #### Request
 - Method: `DELETE`
-- URL: `/api/v1/holidays`
+- URL: `/api/v1/admin/holidays`
 
 ##### Query Parameters (옵션)
 | 이름        | 타입                        | 필수               | 기본값         | 설명       |
