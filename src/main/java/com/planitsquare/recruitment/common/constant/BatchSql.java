@@ -1,5 +1,9 @@
 package com.planitsquare.recruitment.common.constant;
 
+/**
+ * Sql 전용 상수 클래스
+ */
+
 public final class BatchSql {
 
     private BatchSql() {}
