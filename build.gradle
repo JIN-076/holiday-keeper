@@ -34,6 +34,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-batch:3.4.7'
 	// Spring JDBC
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc:3.4.7'
+	// Quartz Scheduler
+	implementation 'org.springframework.boot:spring-boot-starter-quartz:3.4.7'
 	// H2
 	runtimeOnly 'com.h2database:h2'
 	// Lombok

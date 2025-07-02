@@ -104,10 +104,11 @@ public class BatchJobConfig {
     public ItemReader<CountryYear> reader(
         CountryRepository countryRepository,
         @Value("#{jobParameters['countryCode']}") String countryCode,
-        @Value("#{jobParameters['year']}") Long year
+        @Value("#{jobParameters['year']}") Long year,
+        @Value("#{jobParameters['gap']}") Long gap
     ) {
         int currentYear = LocalDate.now().getYear();
-        int startYear = currentYear - 5;
+        int startYear = currentYear - gap.intValue();
 
         List<Country> countries = (countryCode != null && !countryCode.isBlank())
             ? List.of(

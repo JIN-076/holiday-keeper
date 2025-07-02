@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class HolidayAdminController {
 
+    private static final Long GAP = 5L;
     private final HolidayAdminService holidayAdminService;
 
     @PostMapping("/load")
@@ -28,7 +29,7 @@ public class HolidayAdminController {
             @RequestParam(required = false) String code
     ) {
         return ResponseEntity.ok(
-                holidayAdminService.syncByCondition(year, code)
+                holidayAdminService.syncByCondition(year, code, GAP)
         );
     }
 

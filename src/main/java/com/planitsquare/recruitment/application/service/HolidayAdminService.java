@@ -9,6 +9,7 @@ import com.planitsquare.recruitment.domain.repository.HolidayRepository;
 import com.planitsquare.recruitment.exception.batch.BatchExecutionException;
 import com.planitsquare.recruitment.util.DateValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
@@ -18,6 +19,7 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HolidayAdminService {
@@ -33,17 +35,19 @@ public class HolidayAdminService {
     private final Job holidayJob;
 
     public HolidayLoadResponse batchRun() {
-        JobExecution exec = reloadWithCondition(null, null);
+        JobExecution exec = reloadWithCondition(null, null, GAP);
         SummaryInfo summary = makeSummaryWithStepExecution(exec);
         boolean succeed = summary.getFailedChunks() == 0L;
         return HolidayLoadResponse.of(succeed, summary);
     }
 
-    public HolidaySyncResponse syncByCondition(String year, String code) {
+    public HolidaySyncResponse syncByCondition(String year, String code, Long gap) {
         DateValidator.validParam(year);
-        JobExecution exec = reloadWithCondition(year, code);
+        JobExecution exec = reloadWithCondition(year, code, gap);
         SummaryInfo summary = makeSummaryWithStepExecution(exec);
         boolean succeed = !exec.getStatus().isUnsuccessful();
+        log.info("batch execution status: {} changed: {} chunks[succes: {},failed: {}]",
+            succeed, summary.getTotalHolidays(), summary.getSucceedChunks(), summary.getFailedChunks());
         return HolidaySyncResponse.from(succeed, summary);
     }
 
@@ -56,9 +60,10 @@ public class HolidayAdminService {
         return holidayRepository.deleteByCondition(year, code);
     }
 
-    private JobExecution reloadWithCondition(String year, String code) {
+    private JobExecution reloadWithCondition(String year, String code, Long gap) {
         JobParametersBuilder builder = new JobParametersBuilder();
         builder.addLong("run.id", System.currentTimeMillis());
+        builder.addLong("gap", gap);
         if (code != null && !code.isBlank()) builder.addString("countryCode", code);
         if (year != null) builder.addLong("year", Long.parseLong(year));
         JobParameters jobParameters = builder.toJobParameters();
