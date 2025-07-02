@@ -18,4 +18,11 @@ public class DateValidator {
         }
     }
 
+    public static void validParam(LocalDate from, LocalDate to) {
+        if (from == null && to == null) return;
+        if (from == null || to == null) {
+            throw new IllegalArgumentException("from, to 입력 값을 모두 입력해야 합니다.");
+        }
+    }
+
 }

@@ -23,11 +23,12 @@ public class HolidayService {
         String year, String code, String type, LocalDate from, LocalDate to, CursorPaginationInfoReq pageable
     ) {
         DateValidator.validParam(year);
+        DateValidator.validParam(from, to);
         HolidayType.validType(type);
-        if (year != null && (from != null || to != null)) {
+        if (year != null && from != null) {
             throw new IllegalArgumentException("year와 from~to는 동시에 사용할 수 없습니다.");
         }
-        if ((from != null && to != null) && from.isAfter(to)) {
+        if (from != null && from.isAfter(to)) {
             throw new IllegalArgumentException("from은 to보다 늦을 수 없습니다.");
         }
         return holidayRepository.findByConditionWithPagination(year, code, type, from, to, pageable);
