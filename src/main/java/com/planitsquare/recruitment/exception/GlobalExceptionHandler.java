@@ -80,8 +80,8 @@ public class GlobalExceptionHandler {
         SkipLimitExceededException.class,
         JobExecutionException.class,
         FatalStepExecutionException.class,
-        UnexpectedJobExecutionException.class}
-    )
+        UnexpectedJobExecutionException.class
+    })
     protected ResponseEntity<ErrorResponse> handleJobExecutitonException(
         Exception e, HttpServletRequest request
     ) {

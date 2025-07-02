@@ -35,6 +35,7 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -98,15 +99,28 @@ public class BatchJobConfig {
     @Bean
     @StepScope
     public ItemReader<CountryYear> reader(
-        CountryRepository countryRepository
+        CountryRepository countryRepository,
+        @Value("#{jobParameters['countryCode']}") String countryCode,
+        @Value("#{jobParameters['year']}") Long year
     ) {
         int currentYear = LocalDate.now().getYear();
         int startYear = currentYear - 5;
 
-        List<Country> countries = countryRepository.findAll();
+        List<Country> countries = (countryCode != null && !countryCode.isBlank())
+            ? List.of(
+                countryRepository
+                    .findByCountryCode(countryCode)
+                    .orElseThrow(() -> new IllegalArgumentException("Country not found: " + countryCode))
+            )
+            : countryRepository.findAll();
+
+        List<Integer> years = (year != null)
+            ? List.of(year.intValue())
+            : IntStream.rangeClosed(startYear, currentYear).boxed().toList();
+
         List<CountryYear> combos = countries.stream()
-            .flatMap(country -> IntStream.rangeClosed(startYear, currentYear)
-            .mapToObj(year -> new CountryYear(year, country.getCountryCode())))
+            .flatMap(c -> years.stream()
+                .map(y -> new CountryYear(y, c.getCountryCode())))
             .toList();
         return new ListItemReader<>(combos);
     }

@@ -2,6 +2,7 @@ package com.planitsquare.recruitment.api;
 
 import com.planitsquare.recruitment.api.dto.HolidayDeleteResponse;
 import com.planitsquare.recruitment.api.dto.HolidayLoadResponse;
+import com.planitsquare.recruitment.api.dto.HolidaySyncResponse;
 import com.planitsquare.recruitment.application.service.HolidayAdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,13 +17,13 @@ public class HolidayAdminController {
     private final HolidayAdminService holidayAdminService;
 
     @PostMapping("/load")
-    public ResponseEntity<HolidayLoadResponse> loadHolidays() throws Exception {
+    public ResponseEntity<HolidayLoadResponse> loadHolidays() {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(holidayAdminService.batchRun());
     }
 
     @PutMapping("/sync")
-    public ResponseEntity<Long> syncHolidays(
+    public ResponseEntity<HolidaySyncResponse> syncHolidays(
             @RequestParam(required = false) String year,
             @RequestParam(required = false) String code
     ) {

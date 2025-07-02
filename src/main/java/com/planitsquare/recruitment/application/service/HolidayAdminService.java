@@ -1,8 +1,12 @@
 package com.planitsquare.recruitment.application.service;
 
+import static com.planitsquare.recruitment.exception.code.ErrorCode500.INTERNAL_SERVER_ERROR;
+
 import com.planitsquare.recruitment.api.dto.HolidayLoadResponse;
+import com.planitsquare.recruitment.api.dto.HolidaySyncResponse;
 import com.planitsquare.recruitment.api.dto.SummaryInfo;
 import com.planitsquare.recruitment.domain.repository.HolidayRepository;
+import com.planitsquare.recruitment.exception.batch.BatchExecutionException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -18,36 +22,27 @@ import org.springframework.transaction.annotation.Transactional;
 public class HolidayAdminService {
 
     private static final Long GAP = 5L;
+    private static final String COUNTRY_STEP = "countryStep";
+    private static final String HOLIDAY_STEP = "holidayStep";
+    private static final String TOTAL_COUNTRY = "totalCountries";
+    private static final String TOTAL_HOLIDAY = "totalHolidays";
 
     private final HolidayRepository holidayRepository;
     private final JobLauncher jobLauncher;
     private final Job holidayJob;
 
-    public HolidayLoadResponse batchRun() throws Exception {
-        JobParameters jobParameters = new JobParametersBuilder()
-                .addLong("ts", System.currentTimeMillis())
-                .toJobParameters();
-        JobExecution exec = jobLauncher.run(holidayJob, jobParameters);
-        StepExecution countryExec = exec.getStepExecutions().stream()
-            .filter(step -> step.getStepName().equals("countryStep"))
-            .findFirst().orElseThrow();
-        Long totalCountries = countryExec.getExecutionContext().getLong("totalCountries");
-        StepExecution holidayExec = exec.getStepExecutions().stream()
-            .filter(step -> step.getStepName().equals("holidayStep"))
-            .findFirst().orElseThrow();
-        Long totalHolidays = holidayExec.getExecutionContext().getLong("totalHolidays");
-        boolean success = holidayExec.getRollbackCount() == 0;
-        Long succeed = holidayExec.getCommitCount();
-        Long failed = holidayExec.getRollbackCount();
-        SummaryInfo summary = SummaryInfo.of(GAP, totalCountries, totalHolidays, succeed, failed);
-        return HolidayLoadResponse.of(success, summary);
+    public HolidayLoadResponse batchRun() {
+        JobExecution exec = reloadWithCondition(null, null);
+        SummaryInfo summary = makeSummaryWithStepExecution(exec);
+        boolean succeed = summary.getFailedChunks() == 0L;
+        return HolidayLoadResponse.of(succeed, summary);
     }
 
-    public long syncByCondition(String year, String code) {
-        if (year == null && code == null) {
-            throw new IllegalArgumentException("동기화 기준은 최소 하나 이상 선택해야 합니다.");
-        }
-        return 0;
+    public HolidaySyncResponse syncByCondition(String year, String code) {
+        JobExecution exec = reloadWithCondition(year, code);
+        SummaryInfo summary = makeSummaryWithStepExecution(exec);
+        boolean succeed = !exec.getStatus().isUnsuccessful();
+        return HolidaySyncResponse.from(succeed, summary);
     }
 
     @Transactional("jpaTransactionManager")
@@ -56,6 +51,38 @@ public class HolidayAdminService {
             throw new IllegalArgumentException("삭제 기준은 최소 하나 이상 선택해야 합니다.");
         }
         return holidayRepository.deleteByCondition(year, code);
+    }
+
+    private JobExecution reloadWithCondition(String year, String code) {
+        JobParametersBuilder builder = new JobParametersBuilder();
+        builder.addLong("run.id", System.currentTimeMillis());
+        if (code != null && !code.isBlank()) builder.addString("countryCode", code);
+        if (year != null) builder.addLong("year", Long.parseLong(year));
+        JobParameters jobParameters = builder.toJobParameters();
+        try {
+            return jobLauncher.run(holidayJob, jobParameters);
+        } catch (Exception e) {
+            throw new BatchExecutionException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    private SummaryInfo makeSummaryWithStepExecution(JobExecution execution) {
+        StepExecution countryExec = fetchStepExecutionWithStepName(execution, COUNTRY_STEP);
+        Long totalCountries = countryExec.getExecutionContext().getLong(TOTAL_COUNTRY);
+
+        StepExecution holidayExec = fetchStepExecutionWithStepName(execution, HOLIDAY_STEP);
+        Long totalHolidays = holidayExec.getExecutionContext().getLong(TOTAL_HOLIDAY);
+
+        Long succeed = holidayExec.getCommitCount();
+        Long failed = holidayExec.getRollbackCount();
+        return SummaryInfo.of(GAP, totalCountries, totalHolidays, succeed, failed);
+    }
+
+    private StepExecution fetchStepExecutionWithStepName(JobExecution execution, String stepName) {
+        return execution.getStepExecutions().stream()
+            .filter(step -> step.getStepName().equals(stepName))
+            .findFirst().orElseThrow();
     }
 
 }
