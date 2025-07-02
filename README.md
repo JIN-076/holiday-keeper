@@ -35,6 +35,10 @@ Holiday Keeper: Global Holiday Data Management Service
 - Method: `POST`
 - URL: `/api/v1/holidays/import`
 
+```shell
+  POST http://localhost:8080/api/v1/holidays/import
+```
+
 #### Response
 HolidayLoadResponse.class
 
@@ -61,6 +65,10 @@ HolidayLoadResponse.class
 #### Request
 - Method: `GET`
 - URL: `/api/v1/holidays`
+
+```shell
+  GET http://localhost:8080/api/v1/holidays?year=2025&code=KR&cursorId=&pageSize=5&sortOrder=
+```
 
 ##### Query Parameters (옵션)
 | 이름        | 타입                        | 필수 | 기본값               | 설명                      |
@@ -123,6 +131,10 @@ HolidayInfoResponse.class
 - Method: `PUT`
 - URL: `/api/v1/holidays/sync`
 
+```shell
+  PUT http://localhost:8080/api/v1/holidays/sync?year=2025&code=KR
+```
+
 ##### Query Parameters (옵션)
 | 이름        | 타입                        | 필수 | 기본값         | 설명        |
 |-----------|---------------------------|---|-------------|-----------|
@@ -161,6 +173,10 @@ HolidaySyncResponse.class
 #### Request
 - Method: `DELETE`
 - URL: `/api/v1/holidays`
+
+```shell
+  DELETE http://localhost:8080/api/v1/holidays?year=2025&code=KR
+```
 
 ##### Query Parameters (옵션)
 | 이름        | 타입                        | 필수               | 기본값         | 설명       |
