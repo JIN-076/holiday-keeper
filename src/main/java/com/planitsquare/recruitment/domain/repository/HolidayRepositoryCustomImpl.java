@@ -1,8 +1,8 @@
 package com.planitsquare.recruitment.domain.repository;
 
-import static com.planitsquare.recruitment.core.QHoliday.holiday;
-import static com.planitsquare.recruitment.core.QCountry.country;
-import static com.planitsquare.recruitment.core.QHolidayCounty.holidayCounty;
+import static com.planitsquare.recruitment.domain.entity.QHoliday.holiday;
+import static com.planitsquare.recruitment.domain.entity.QCountry.country;
+import static com.planitsquare.recruitment.domain.entity.QHolidayCounty.holidayCounty;
 
 import com.planitsquare.recruitment.common.base.CursorPaginationInfoReq;
 import com.planitsquare.recruitment.common.base.CursorPaginationResult;

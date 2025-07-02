@@ -4,6 +4,10 @@ import com.planitsquare.recruitment.exception.base.CustomException;
 import com.planitsquare.recruitment.exception.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.JobExecutionException;
+import org.springframework.batch.core.UnexpectedJobExecutionException;
+import org.springframework.batch.core.step.FatalStepExecutionException;
+import org.springframework.batch.core.step.skip.SkipLimitExceededException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -70,6 +74,19 @@ public class GlobalExceptionHandler {
     ) {
         log.info("Missing Path Variable Exception: {}, Path: {}", e.getMessage(), getRequestURLWithQuery(request));
         return ErrorResponse.from(PATH_PARAMETER_BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {
+        SkipLimitExceededException.class,
+        JobExecutionException.class,
+        FatalStepExecutionException.class,
+        UnexpectedJobExecutionException.class}
+    )
+    protected ResponseEntity<ErrorResponse> handleJobExecutitonException(
+        Exception e, HttpServletRequest request
+    ) {
+        log.info("Batch Job Execution Exception: {}, Path: {}", e.getMessage(), getRequestURLWithQuery(request));
+        return ErrorResponse.from(INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(value = Exception.class)

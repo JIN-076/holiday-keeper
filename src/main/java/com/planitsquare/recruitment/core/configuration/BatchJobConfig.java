@@ -1,5 +1,6 @@
 package com.planitsquare.recruitment.core.configuration;
 
+import com.planitsquare.recruitment.application.batch.listener.HolidayCountListener;
 import com.planitsquare.recruitment.common.constant.BatchSql;
 import com.planitsquare.recruitment.domain.entity.Country;
 import com.planitsquare.recruitment.application.batch.tasklet.CountryListTasklet;
@@ -19,11 +20,15 @@ import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.ChunkListener;
+import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -54,9 +59,11 @@ public class BatchJobConfig {
         @Qualifier("transactionManager") PlatformTransactionManager transactionManager,
         ItemReader<CountryYear> reader,
         ItemProcessor<CountryYear, List<HolidayDto>> processor,
-        ItemWriter<List<HolidayDto>> writer
+        ItemWriter<List<HolidayDto>> writer,
+        HolidayCountListener holidayCountListener,
+        ChunkListener chunkListener
     ) {
-        return new StepBuilder("holidayStep", jobRepository)
+        SimpleStepBuilder<CountryYear, List<HolidayDto>> builder = new StepBuilder("holidayStep", jobRepository)
             .<CountryYear, List<HolidayDto>>chunk(30, transactionManager)
             .reader(reader)
             .processor(processor)
@@ -64,8 +71,16 @@ public class BatchJobConfig {
             .faultTolerant()
                 .retry(RuntimeException.class)
                 .retry(Exception.class)
-            .retryLimit(3)
-            .build();
+                .retryLimit(3)
+            .skip(RuntimeException.class)
+            .skip(Exception.class)
+            .skipLimit(3);
+        builder.listener((StepExecutionListener) holidayCountListener);
+        @SuppressWarnings("unchecked")
+        ItemWriteListener<List<HolidayDto>> writeListener = holidayCountListener;
+        builder.listener(writeListener);
+        builder.listener(chunkListener);
+        return builder.build();
     }
 
     @Bean
@@ -76,6 +91,7 @@ public class BatchJobConfig {
     ) {
         return new StepBuilder("countryStep", jobRepository)
             .tasklet(tasklet, transactionManager)
+            .listener(tasklet)
             .build();
     }
 
