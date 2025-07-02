@@ -12,12 +12,25 @@ import java.util.List;
 @Getter
 public class HolidayInfoResponse {
 
+    @Schema(description = "공휴일 ID", example = "1")
     private final Long id;
+
+    @Schema(description = "공휴일자", example = "2025-01-01")
     private final LocalDate date;
+
+    @Schema(description = "로컬 이름", example = "새해")
     private final String localName;
+
+    @Schema(description = "이름", example = "New Year's Day")
     private final String name;
+
+    @Schema(description = "국가", example = "South Korea")
     private final String countryName;
+
+    @Schema(description = "공휴일 분류", example = "PUBLIC")
     private final HolidayType type;
+
+    @Schema(description = "일부 적용 국가", examples = {"[]"})
     private final List<HolidayCounty> counties;
 
     public HolidayInfoResponse(

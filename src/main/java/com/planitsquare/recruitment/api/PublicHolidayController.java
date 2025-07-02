@@ -4,6 +4,7 @@ import com.planitsquare.recruitment.api.dto.HolidayInfoResponse;
 import com.planitsquare.recruitment.application.service.HolidayService;
 import com.planitsquare.recruitment.common.base.CursorPaginationInfoReq;
 import com.planitsquare.recruitment.common.base.CursorPaginationResult;
+import com.planitsquare.recruitment.common.swagger.template.PublicHolidaySwagger;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/holidays")
 @RequiredArgsConstructor
-public class PublicHolidayController {
+public class PublicHolidayController implements PublicHolidaySwagger {
 
     private final HolidayService holidayService;
 

@@ -45,7 +45,7 @@ public class HolidayAdminService {
         DateValidator.validParam(year);
         JobExecution exec = reloadWithCondition(year, code, gap);
         SummaryInfo summary = makeSummaryWithStepExecution(exec);
-        boolean succeed = !exec.getStatus().isUnsuccessful();
+        boolean succeed = summary.getFailedChunks() == 0L;
         log.info("batch execution status: {} changed: {} chunks[succes: {},failed: {}]",
             succeed, summary.getTotalHolidays(), summary.getSucceedChunks(), summary.getFailedChunks());
         return HolidaySyncResponse.from(succeed, summary);
