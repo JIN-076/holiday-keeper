@@ -20,7 +20,7 @@ Holiday Keeper: Global Holiday Data Management Service
 3. 브라우저에서 API 명세 접속
 
 ```shell
-  http://localhost:8080/api/v1/api-docs
+  http://localhost:8080/api-docs
 ```
 
 4. API 테스팅
@@ -42,13 +42,13 @@ HolidayLoadResponse.class
 - Body:
 ```json
 {
-  "success": true, // 일괄 적재 성공 여부, 한 chunk라도 실패 시에는 실패로 간주
+  "success": true,
   "summary": {
-    "totalYears": 5, // 적재한 총 연도 수 ex) 5년
-    "totalCountries": 117, // 적재한 총 국가 수 ex) 117
-    "totalHolidays": 9872, // 적재한 총 공휴일 수
-    "succeedChunks": 24, // 적재 성공한 chunk 수
-    "failedChunks": 0 // 재시도했음에도 최종 실패한 chunk 수 (기본적으로 재시도 3회 포함)
+    "totalYears": 5,
+    "totalCountries": 117,
+    "totalHolidays": 9872,
+    "succeedChunks": 24,
+    "failedChunks": 0
   },
   "timestamp": "2025-07-02T22:48:10.586775"
 }
@@ -220,4 +220,4 @@ HolidaySyncResponse.class
 
 ## Swagger UI 노출 확인 방법
 1. `./gradlew bootRun` 명령어를 통해 애플리케이션 구동
-2. 웹 브라우저에서 `http://localhost:8080/api/v1/api-docs` 접속
+2. 웹 브라우저에서 `http://localhost:8080/api-docs` 접속
